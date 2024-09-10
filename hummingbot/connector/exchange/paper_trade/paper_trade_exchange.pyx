@@ -19,7 +19,7 @@ from hummingbot.connector.exchange_base import ExchangeBase
 from hummingbot.core.clock cimport Clock
 from hummingbot.core.clock import Clock
 from hummingbot.core.data_type.cancellation_result import CancellationResult
-from hummingbot.core.data_type.common import OrderType, TradeType
+from hummingbot.core.data_type.common import OrderType, TradeType, PositionAction
 from hummingbot.core.data_type.composite_order_book import CompositeOrderBook
 from hummingbot.core.data_type.composite_order_book cimport CompositeOrderBook
 from hummingbot.core.data_type.limit_order import LimitOrder
@@ -385,7 +385,9 @@ cdef class PaperTradeExchange(ExchangeBase):
                     str trading_pair_str,
                     object amount,
                     object order_type=OrderType.MARKET,
-                    object price=s_decimal_0,
+                    object price=s_decimal_0, 
+                    object position = PositionAction.NIL,
+                    object stop_price=s_decimal_0,
                     dict kwargs={}):
 
         if trading_pair_str not in self._trading_pairs:
@@ -1106,8 +1108,8 @@ cdef class PaperTradeExchange(ExchangeBase):
         return self.c_buy(trading_pair, amount, order_type, price, kwargs)
 
     def sell(self, trading_pair: str, amount: Decimal, order_type=OrderType.MARKET,
-             price: Decimal = s_decimal_0, **kwargs) -> str:
-        return self.c_sell(trading_pair, amount, order_type, price, kwargs)
+             price: Decimal = s_decimal_0, object position = PositionAction.NIL, object stop_price=s_decimal_0, **kwargs) -> str:
+        return self.c_sell(trading_pair, amount, order_type, price, position, stop_price, kwargs)
 
     def cancel(self, trading_pair: str, client_order_id: str):
         return self.c_cancel(trading_pair, client_order_id)
