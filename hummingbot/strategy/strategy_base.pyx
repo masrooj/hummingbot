@@ -577,7 +577,7 @@ cdef class StrategyBase(TimeIterator):
 
         cdef:
             str order_id = market.c_sell(market_trading_pair_tuple.trading_pair, amount,
-                                         order_type=order_type, price=price, position=position_action, stop_price=stop_price, kwargs=kwargs)
+                                         order_type=order_type, price=price, stop_price=stop_price, kwargs=kwargs)
 
         # Start order tracking
         if order_type.is_limit_type():

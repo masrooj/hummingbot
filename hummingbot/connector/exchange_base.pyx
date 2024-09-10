@@ -128,8 +128,8 @@ cdef class ExchangeBase(ConnectorBase):
         return self.buy(trading_pair, amount, order_type, price, **kwargs)
 
     cdef str c_sell(self, str trading_pair, object amount, object order_type=OrderType.MARKET,
-                    object price=s_decimal_NaN, object position = PositionAction.NIL, object stop_price=s_decimal_NaN, dict kwargs={}):
-        return self.sell(trading_pair, amount, order_type, price, position, stop_price, **kwargs)
+                    object price=s_decimal_NaN, object stop_price=s_decimal_NaN, dict kwargs={}):
+        return self.sell(trading_pair, amount, order_type, price, stop_price, **kwargs)
 
     cdef c_cancel(self, str trading_pair, str client_order_id):
         return self.cancel(trading_pair, client_order_id)

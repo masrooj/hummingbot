@@ -10,7 +10,7 @@ from hummingbot.connector.constants import s_decimal_NaN, s_decimal_0
 from hummingbot.core.clock cimport Clock
 from hummingbot.core.data_type.limit_order import LimitOrder
 from hummingbot.core.data_type.cancellation_result import CancellationResult
-from hummingbot.core.data_type.common import OrderType, TradeType, PositionAction
+from hummingbot.core.data_type.common import OrderType, TradeType
 from hummingbot.core.data_type.market_order import MarketOrder
 from hummingbot.core.event.event_logger import EventLogger
 from hummingbot.core.event.events import MarketEvent, OrderFilledEvent
@@ -255,7 +255,7 @@ cdef class ConnectorBase(NetworkIterator):
                    object price=s_decimal_NaN, dict kwargs={}):
         return self.buy(trading_pair, amount, order_type, price, **kwargs)
 
-    def sell(self, trading_pair: str, amount: Decimal, order_type: OrderType, price: Decimal, position : PositionAction, stop_price: Decimal, **kwargs) -> str:
+    def sell(self, trading_pair: str, amount: Decimal, order_type: OrderType, price: Decimal, stop_price: Decimal, **kwargs) -> str:
         """
         Sells an amount of base asset (of the given trading pair).
         :param trading_pair: The market (e.g. BTC-USDT) to sell from
@@ -325,8 +325,8 @@ cdef class ConnectorBase(NetworkIterator):
         return creation_results
 
     cdef str c_sell(self, str trading_pair, object amount, object order_type=OrderType.MARKET,
-                    object price=s_decimal_NaN, object position = PositionAction.NIL, object stop_price=s_decimal_NaN, dict kwargs={}):
-        return self.sell(trading_pair, amount, order_type, price, position, stop_price, **kwargs)
+                    object price=s_decimal_NaN, object stop_price=s_decimal_NaN, dict kwargs={}):
+        return self.sell(trading_pair, amount, order_type, price, stop_price, **kwargs)
 
     cdef c_cancel(self, str trading_pair, str client_order_id):
         self.cancel(trading_pair, client_order_id)

@@ -33,7 +33,7 @@ from hummingbot.connector.exchange.bitfinex.bitfinex_websocket import BitfinexWe
 from hummingbot.connector.exchange_base import ExchangeBase
 from hummingbot.connector.trading_rule cimport TradingRule
 from hummingbot.core.data_type.cancellation_result import CancellationResult
-from hummingbot.core.data_type.common import OrderType, TradeType, PositionAction
+from hummingbot.core.data_type.common import OrderType, TradeType
 from hummingbot.core.data_type.limit_order import LimitOrder
 from hummingbot.core.data_type.order_book cimport OrderBook
 from hummingbot.core.data_type.trade_fee import AddedToCostTradeFee, TokenAmount
@@ -793,7 +793,6 @@ cdef class BitfinexExchange(ExchangeBase):
                     object amount,
                     object order_type=OrderType.MARKET,
                     object price=s_decimal_0,
-                    object position = PositionAction.NIL,
                     object stop_price=s_decimal_0,
                     dict kwargs={}):
         """
@@ -1342,8 +1341,8 @@ cdef class BitfinexExchange(ExchangeBase):
         return self.c_buy(trading_pair, amount, order_type, price, kwargs)
 
     def sell(self, trading_pair: str, amount: Decimal, order_type=OrderType.MARKET,
-             price: Decimal = s_decimal_nan, object position = PositionAction.NIL, object stop_price=s_decimal_nan, **kwargs) -> str:
-        return self.c_sell(trading_pair, amount, order_type, price, position, stop_price, kwargs)
+             price: Decimal = s_decimal_nan, object stop_price=s_decimal_nan, **kwargs) -> str:
+        return self.c_sell(trading_pair, amount, order_type, price, stop_price, kwargs)
 
     def cancel(self, trading_pair: str, client_order_id: str):
         return self.c_cancel(trading_pair, client_order_id)

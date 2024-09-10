@@ -1,4 +1,4 @@
-exchange: binance_perpetual
+exchange: binance_perpetual_testnet
 session_id: 66cf0ccb971fa886f9fee956 #66cc2f499e878b3a77198718
 trading_pair: 1000PEPE-USDT 
 base_order_amount: 0.4

@@ -305,7 +305,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
 
                     self.loggingMessage(f"limit ==> _exit_order_id {self._exit_order_id}")
                     self.loggingMessage(
-                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)),0)}"
+                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)), 0)}"
                     )
 
                     if self._exit_order_id is not None:
@@ -375,7 +375,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
 
                     self.loggingMessage("Sell order creation ==> Take profit")
                     self.loggingMessage(
-                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)),0)}"
+                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)), 0)}"
                     )
 
                     # after base order filled create tp and sl orders where tp created instantly
@@ -401,7 +401,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
 
                     self.loggingMessage("Sell order creation ==> Stop loss")
                     self.loggingMessage(
-                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)),0)}"
+                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)), 0)}"
                     )
 
                     # after base order filled create tp and sl orders where sl created after stop price reached so check each seconds
@@ -706,8 +706,8 @@ class ManualFutureLeverage(ScriptStrategyBase):
                     amount=order.amount,
                     order_type=OrderType.STOP_MARKET,
                     price=order.price,
-                    position_action=PositionAction.OPEN,  # A position action (for perpetual market only)
                     stop_price=order.price * Decimal("0.95"),
+                    position_action=PositionAction.OPEN,
                 )
             elif order.order_side == TradeType.BUY.name:
                 return self.buy(
@@ -865,7 +865,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
                             and len(data["commands"]) > 0
                             and self.config.commands_count != len(data["commands"])
                         ):
-                            self.loggingMessage(f"data['commands']  {data['commands'] }")
+                            self.loggingMessage(f"data['commands']  {data['commands']}")
                             self.loggingMessage(
                                 f"self.config.commands_count {self.config.commands_count} and data['commands'] {data['commands']}"
                             )
@@ -890,7 +890,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
 
                                     self.loggingMessage(f"limit ==> _exit_order_id {self._exit_order_id}")
                                     self.loggingMessage(
-                                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)),0)}"
+                                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)), 0)}"
                                     )
 
                                     if self._exit_order_id is not None:
@@ -912,7 +912,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
 
                                     self.loggingMessage(f"market ==> _exit_order_id {self._exit_order_id}")
                                     self.loggingMessage(
-                                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)),0)}"
+                                        f"order size ==> {self.truncate_decimal((float(self._base_order_filled_token) * float(active_position.leverage)), 0)}"
                                     )
 
                                     if self._exit_order_id is not None:
@@ -1102,7 +1102,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
                         exit_price, self._base_order_filled_token, TradeType.SELL.name, order_type
                     )
 
-                    self.loggingMessage(f"exit order_id return : { self._exit_order_id} ")
+                    self.loggingMessage(f"exit order_id return : {self._exit_order_id} ")
 
                 elif self.config.trade_type == TradeType.SELL.name:
                     exit_price = self.calculate_limit_order_price(
@@ -1118,7 +1118,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
                         exit_price, self._base_order_filled_token, TradeType.BUY.name, order_type
                     )
 
-                    self.loggingMessage(f"exit order_id return : { self._exit_order_id} ")
+                    self.loggingMessage(f"exit order_id return : {self._exit_order_id} ")
 
                 else:
                     self.loggingMessage(
