@@ -105,6 +105,9 @@ class ManualFutureLeverageConfig(BaseClientModel):
     exit_price: Decimal = Field(
         0.00, client_data=ClientFieldData(prompt_on_new=True, prompt=lambda mi: "Enter the exit_price :")
     )
+    stop_price: Decimal = Field(
+        0.00, client_data=ClientFieldData(prompt_on_new=True, prompt=lambda mi: "Enter the stop_price :")
+    )
     exit_type: str = Field(
         "exit type", client_data=ClientFieldData(prompt_on_new=True, prompt=lambda mi: "Enter the exit_type :")
     )
@@ -501,7 +504,6 @@ class ManualFutureLeverage(ScriptStrategyBase):
             self.loggingMessage(f"current price: {current_price} ")
 
             base_order_price = current_price  # variable initialization
-
             order_type = OrderType.LIMIT
 
             if self.config.trade_type == TradeType.BUY.name:
@@ -516,6 +518,9 @@ class ManualFutureLeverage(ScriptStrategyBase):
                 base_order_price = current_price  # base current price if its a market or  once base_order_price updated due to  self.config.trade_type then need to rest it its market
                 order_type = OrderType.MARKET
 
+            if self.config.stop_price > Decimal(0):
+                order_type = OrderType.STOP_MARKET
+
             self.loggingMessage(f"base order price: {base_order_price} for is market {is_market}")
             self.loggingMessage(f"base order amount: {base_order_amount} ")
 
@@ -523,7 +528,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
             self.loggingMessage(f"base order token: {base_order_token} ")
             self.loggingMessage(f"self.config.trade_type: {self.config.trade_type} ")
 
-            order_id = self.execute_order(base_order_price, base_order_token, self.config.trade_type, order_type)
+            order_id = self.execute_order(base_order_price, base_order_token, self.config.trade_type, order_type, self.config.stop_price)
             self.loggingMessage(f"base order_id return : {order_id} ")
 
             return order_id, base_order_price, base_order_token
@@ -669,16 +674,16 @@ class ManualFutureLeverage(ScriptStrategyBase):
             # else :
             #     self.loggingMessage(f"take profit not created for {self.config.trade_type}")
 
-    def execute_order(self, price: Decimal, order_amount: Decimal, trade_type: TradeType, order_type: OrderType) -> str:
+    def execute_order(self, price: Decimal, order_amount: Decimal, trade_type: TradeType, order_type: OrderType, stop_price: Decimal) -> str:
 
         order: OrderCandidate = self.create_order(
-            price=price, trade_type=trade_type, order_type=order_type, is_maker=True, order_amount=order_amount
+            price=price, trade_type=trade_type, order_type=order_type, is_maker=True, order_amount=order_amount, stop_price=stop_price
         )
 
         return self.place_order(connector_name=self.config.exchange, order=order)
 
     def create_order(
-        self, price: Decimal, trade_type: TradeType, order_type: OrderType, is_maker: bool, order_amount: Decimal
+        self, price: Decimal, trade_type: TradeType, order_type: OrderType, is_maker: bool, order_amount: Decimal, stop_price: Decimal
     ) -> OrderCandidate:
 
         leveraged_order_amount = Decimal(self.config.leverage) * Decimal(order_amount)
@@ -693,6 +698,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
             order_side=trade_type,
             amount=Decimal(leveraged_order_amount),
             price=price,
+            stop_price=stop_price
         )
 
         return order
@@ -706,7 +712,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
                     amount=order.amount,
                     order_type=OrderType.STOP_MARKET,
                     price=order.price,
-                    stop_price=order.price * Decimal("0.95"),
+                    stop_price=order.price * order.stop_price,
                     position_action=PositionAction.OPEN,
                 )
             elif order.order_side == TradeType.BUY.name:

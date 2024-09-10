@@ -172,8 +172,8 @@ class PerpetualDerivativePyBase(ExchangePyBase, ABC):
         trade_type: TradeType,
         order_type: OrderType,
         price: Decimal,
+        stop_price: Optional[Decimal] = None,
         position_action: PositionAction = PositionAction.NIL,
-        stop_price: Decimal = Decimal('0.0'),
         **kwargs,
     ) -> Tuple[str, float]:
         raise NotImplementedError
@@ -220,8 +220,8 @@ class PerpetualDerivativePyBase(ExchangePyBase, ABC):
         amount: Decimal,
         order_type: OrderType,
         price: Optional[Decimal] = None,
+        stop_price: Optional[Decimal] = None,
         position_action: PositionAction = PositionAction.NIL,
-        stop_price: Decimal = Decimal('0.0'),
         **kwargs,
     ):
         """
@@ -248,8 +248,8 @@ class PerpetualDerivativePyBase(ExchangePyBase, ABC):
             amount,
             order_type,
             price,
+            stop_price,
             position_action=position_action,
-            stop_price=stop_price,
             **kwargs,
         )
 

@@ -12,6 +12,7 @@ take_profit_price: 0.00
 take_profit_percentage:  0.15 
 price_type: last 
 trade_type: SELL 
+stop_price: 0.081
 exit_price: 0.00 
 exit_type:  exit_limit
 commands_count: 0  

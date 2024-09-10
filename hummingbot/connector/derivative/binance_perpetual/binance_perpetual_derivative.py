@@ -243,13 +243,14 @@ class BinancePerpetualDerivative(PerpetualDerivativePyBase):
         trade_type: TradeType,
         order_type: OrderType,
         price: Decimal,
-        stop_price: Optional[Decimal],
+        stop_price: Decimal,
         position_action: PositionAction = PositionAction.NIL,
         **kwargs,
     ) -> Tuple[str, float]:
         try:
             amount_str = f"{amount:f}"
             price_str = f"{price:f}"
+            stop_price_str = f"{stop_price:f}"
             symbol = await self.exchange_symbol_associated_to_pair(trading_pair=trading_pair)
             api_params = {
                 "symbol": symbol,
@@ -267,7 +268,6 @@ class BinancePerpetualDerivative(PerpetualDerivativePyBase):
                 api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTX
 
             if order_type == OrderType.STOP_MARKET:
-                stop_price_str = f"{stop_price:f}"
                 api_params["stopPrice"] = stop_price_str
                 api_params["type"] = "STOP_MARKET"
                 api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTC
