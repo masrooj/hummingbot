@@ -25,6 +25,7 @@ cdef class InFlightOrderBase:
                  trade_type: TradeType,
                  price: Decimal,
                  amount: Decimal,
+                 stop_price: Decimal,
                  creation_timestamp: float,
                  initial_state: str):
 
@@ -34,6 +35,7 @@ cdef class InFlightOrderBase:
         self.order_type = order_type
         self.trade_type = trade_type
         self.price = price
+        self.stop_price = stop_price
         self.amount = amount
         self.executed_amount_base = s_decimal_0
         self.executed_amount_quote = s_decimal_0
@@ -55,6 +57,7 @@ cdef class InFlightOrderBase:
                 f"order_type={self.order_type}, "
                 f"trade_type={self.trade_type}, "
                 f"price={self.price}, "
+                f"stop_price={self.stop_price}, " 
                 f"amount={self.amount}, "
                 f"executed_amount_base={self.executed_amount_base}, "
                 f"executed_amount_quote={self.executed_amount_quote}, "
@@ -142,6 +145,7 @@ cdef class InFlightOrderBase:
             getattr(OrderType, data["order_type"]),
             getattr(TradeType, data["trade_type"]),
             Decimal(data["price"]),
+            Decimal(data["stop_price"]),
             Decimal(data["amount"]),
             data.get("creation_timestamp", -1),
             data["last_state"]]

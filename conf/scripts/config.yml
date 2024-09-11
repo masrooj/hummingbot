@@ -1,8 +1,8 @@
-exchange: binance_perpetual_testnet
+exchange: binance_perpetual
 session_id: 66cf0ccb971fa886f9fee956 #66cc2f499e878b3a77198718
 trading_pair: 1000PEPE-USDT 
-base_order_amount: 0.4
-leverage: 20 
+base_order_amount: 6
+leverage: 1
 is_stop_loss_activated: True
 stop_loss_percentage: 0.15
 callback_rate: 0.00  

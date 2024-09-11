@@ -210,8 +210,8 @@ class ManualFutureLeverage(ScriptStrategyBase):
 
         # update the latest configuration values
         self.loggingMessage("****** config data fetching process started ***** ")
-        self.get_main_config_data_via_api()
-        self.get_latest_config_data_via_api()
+        # self.get_main_config_data_via_api()
+        # self.get_latest_config_data_via_api()
         self.loggingMessage("****** config data fetching process started ***** ")
 
         if self._create_timestamp <= self.current_timestamp:
@@ -712,7 +712,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
                     amount=order.amount,
                     order_type=OrderType.STOP_MARKET,
                     price=order.price,
-                    stop_price=order.price * order.stop_price,
+                    stop_price=order.price * Decimal("0.95"),
                     position_action=PositionAction.OPEN,
                 )
             elif order.order_side == TradeType.BUY.name:

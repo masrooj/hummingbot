@@ -243,7 +243,7 @@ class BinancePerpetualDerivative(PerpetualDerivativePyBase):
         trade_type: TradeType,
         order_type: OrderType,
         price: Decimal,
-        stop_price: Decimal,
+        stop_price: Optional[Decimal] = None,
         position_action: PositionAction = PositionAction.NIL,
         **kwargs,
     ) -> Tuple[str, float]:

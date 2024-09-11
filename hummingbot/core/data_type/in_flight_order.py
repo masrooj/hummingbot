@@ -96,11 +96,12 @@ class InFlightOrder:
             amount: Decimal,
             creation_timestamp: float,
             price: Optional[Decimal] = None,
+            stop_price: Optional[Decimal] = None,
             exchange_order_id: Optional[str] = None,
             initial_state: OrderState = OrderState.PENDING_CREATE,
             leverage: int = 1,
             position: PositionAction = PositionAction.NIL,
-            stop_price: Optional[Decimal] = None,
+
     ) -> None:
         self.client_order_id = client_order_id
         self.creation_timestamp = creation_timestamp

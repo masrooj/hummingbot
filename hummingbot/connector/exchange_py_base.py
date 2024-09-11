@@ -397,8 +397,8 @@ class ExchangePyBase(ExchangeBase, ABC):
                             trading_pair: str,
                             amount: Decimal,
                             order_type: OrderType,
-                            stop_price: Optional[Decimal],
                             price: Optional[Decimal] = None,
+                            stop_price: Optional[Decimal] = None,
                             **kwargs):
         """
         Creates an order in the exchange using the parameters to configure it
@@ -414,17 +414,21 @@ class ExchangePyBase(ExchangeBase, ABC):
 
         if order_type in [OrderType.LIMIT, OrderType.LIMIT_MAKER, OrderType.STOP_MARKET]:
             price = self.quantize_order_price(trading_pair, price)
+
+            if stop_price is not None:
+                stop_price = self.quantize_order_price(trading_pair, stop_price)
+
         quantized_amount = self.quantize_order_amount(trading_pair=trading_pair, amount=amount)
 
         self.start_tracking_order(
             order_id=order_id,
-            exchange_order_id=None,
             trading_pair=trading_pair,
             order_type=order_type,
             trade_type=trade_type,
+            amount=quantized_amount,
             price=price,
             stop_price=stop_price,
-            amount=quantized_amount,
+            exchange_order_id=None,
             **kwargs,
         )
         order = self._order_tracker.active_orders[order_id]
@@ -614,6 +618,7 @@ class ExchangePyBase(ExchangeBase, ABC):
                 trade_type=trade_type,
                 amount=amount,
                 price=price,
+                stop_price=stop_price,
                 creation_timestamp=self.current_timestamp
             )
         )
@@ -643,6 +648,7 @@ class ExchangePyBase(ExchangeBase, ABC):
                            trade_type: TradeType,
                            order_type: OrderType,
                            price: Decimal,
+                           stop_price: Decimal,
                            **kwargs,
                            ) -> Tuple[str, float]:
         raise NotImplementedError
