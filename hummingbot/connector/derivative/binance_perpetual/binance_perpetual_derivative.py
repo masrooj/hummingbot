@@ -256,12 +256,12 @@ class BinancePerpetualDerivative(PerpetualDerivativePyBase):
                 "symbol": symbol,
                 "side": "BUY" if trade_type is TradeType.BUY else "SELL",
                 "quantity": amount_str,
-                # "type": "MARKET" if order_type is OrderType.MARKET else "LIMIT",
-                "type": order_type,
+                "type": "MARKET" if order_type is OrderType.MARKET else "",
                 "newClientOrderId": order_id,
             }
             if order_type.is_limit_type():
                 api_params["price"] = price_str
+                api_params["type"] = "LIMIT"
             if order_type == OrderType.LIMIT:
                 api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTC
             if order_type == OrderType.LIMIT_MAKER:

@@ -518,8 +518,8 @@ class ManualFutureLeverage(ScriptStrategyBase):
                 base_order_price = current_price  # base current price if its a market or  once base_order_price updated due to  self.config.trade_type then need to rest it its market
                 order_type = OrderType.MARKET
 
-            if self.config.stop_price > Decimal(0):
-                order_type = OrderType.STOP_MARKET
+            # if self.config.stop_price > Decimal(0):
+            #     order_type = OrderType.STOP_MARKET
 
             self.loggingMessage(f"base order price: {base_order_price} for is market {is_market}")
             self.loggingMessage(f"base order amount: {base_order_amount} ")
@@ -710,9 +710,8 @@ class ManualFutureLeverage(ScriptStrategyBase):
                     connector_name=connector_name,
                     trading_pair=order.trading_pair,
                     amount=order.amount,
-                    order_type=OrderType.STOP_MARKET,
+                    order_type=order.order_type,
                     price=order.price,
-                    stop_price=order.price * Decimal("0.95"),
                     position_action=PositionAction.OPEN,
                 )
             elif order.order_side == TradeType.BUY.name:
