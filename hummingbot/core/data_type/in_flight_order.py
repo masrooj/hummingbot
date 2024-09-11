@@ -97,6 +97,8 @@ class InFlightOrder:
             creation_timestamp: float,
             price: Optional[Decimal] = None,
             stop_price: Optional[Decimal] = None,
+            call_back_rate: Optional[Decimal] = None,
+            activation_price: Optional[Decimal] = None,
             exchange_order_id: Optional[str] = None,
             initial_state: OrderState = OrderState.PENDING_CREATE,
             leverage: int = 1,
@@ -115,6 +117,8 @@ class InFlightOrder:
         self.leverage = leverage
         self.position = position
         self.stop_price = stop_price
+        self.call_back_rate = call_back_rate
+        self.activation_price = activation_price
         self.executed_amount_base = s_decimal_0
         self.executed_amount_quote = s_decimal_0
 
@@ -148,6 +152,8 @@ class InFlightOrder:
                 self.creation_timestamp,
                 self.last_update_timestamp,
                 self.stop_price,
+                self.call_back_rate,
+                self.activation_price
             )
         )
 
@@ -234,7 +240,9 @@ class InFlightOrder:
             leverage=int(data["leverage"]),
             position=PositionAction(data["position"]),
             creation_timestamp=data.get("creation_timestamp", -1),
-            stop_price=Decimal(data["stop_price"])
+            stop_price=Decimal(data["stop_price"]),
+            call_back_rate=Decimal(data["call_back_rate"]),
+            activation_price=Decimal(data["activation_price"])
         )
         order.executed_amount_base = Decimal(data["executed_amount_base"])
         order.executed_amount_quote = Decimal(data["executed_amount_quote"])
@@ -270,6 +278,8 @@ class InFlightOrder:
             "last_update_timestamp": self.last_update_timestamp,
             "order_fills": {key: fill.to_json() for key, fill in self.order_fills.items()},
             "stop_price": str(self.stop_price),
+            "call_back_rate": str(self.call_back_rate),
+            "activation_price": str(self.activation_price)
         }
 
     def to_limit_order(self) -> LimitOrder:

@@ -18,8 +18,8 @@ cdef class ConnectorBase(NetworkIterator):
         public object _trade_volume_metric_collector
         public object _client_config
 
-    cdef str c_buy(self, str trading_pair, object amount, object order_type=*, object price=*, dict kwargs=*)
-    cdef str c_sell(self, str trading_pair, object amount, object order_type=*, object price=*, object stop_price=*, dict kwargs=*)
+    cdef str c_buy(self, str trading_pair, object amount, object order_type=*, object price=*, object stop_price=*, object call_back_rate=*, object activation_price=*, dict kwargs=*)
+    cdef str c_sell(self, str trading_pair, object amount, object order_type=*, object price=*, object stop_price=*, object call_back_rate=*, object activation_price=*, dict kwargs=*)
     cdef c_cancel(self, str trading_pair, str client_order_id)
     cdef c_stop_tracking_order(self, str order_id)
     cdef object c_get_balance(self, str currency)

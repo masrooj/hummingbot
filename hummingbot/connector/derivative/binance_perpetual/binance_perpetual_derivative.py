@@ -124,8 +124,11 @@ class BinancePerpetualDerivative(PerpetualDerivativePyBase):
             OrderType.LIMIT,
             OrderType.MARKET,
             OrderType.LIMIT_MAKER,
+            OrderType.STOP,
+            OrderType.TAKE_PROFIT,
             OrderType.STOP_MARKET,
             OrderType.TAKE_PROFIT_MARKET,
+            OrderType.TRAILING_STOP_MARKET,
         ]
 
     def supported_position_modes(self):
@@ -243,14 +246,19 @@ class BinancePerpetualDerivative(PerpetualDerivativePyBase):
         trade_type: TradeType,
         order_type: OrderType,
         price: Decimal,
-        stop_price: Optional[Decimal] = None,
+        stop_price: Optional[Decimal],
+        call_back_rate: Optional[Decimal],
+        activation_price: Optional[Decimal],
         position_action: PositionAction = PositionAction.NIL,
         **kwargs,
     ) -> Tuple[str, float]:
         try:
             amount_str = f"{amount:f}"
             price_str = f"{price:f}"
-            stop_price_str = f"{stop_price:f}"
+            stop_price_str = f"{stop_price:f}" if stop_price is not None else None
+            call_back_rate_str = f"{call_back_rate:f}" if call_back_rate is not None else None
+            activation_price_str = f"{activation_price:f}" if activation_price is not None else None
+
             symbol = await self.exchange_symbol_associated_to_pair(trading_pair=trading_pair)
             api_params = {
                 "symbol": symbol,
@@ -259,17 +267,42 @@ class BinancePerpetualDerivative(PerpetualDerivativePyBase):
                 "type": "MARKET" if order_type is OrderType.MARKET else "",
                 "newClientOrderId": order_id,
             }
+
             if order_type.is_limit_type():
                 api_params["price"] = price_str
                 api_params["type"] = "LIMIT"
+
             if order_type == OrderType.LIMIT:
                 api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTC
             if order_type == OrderType.LIMIT_MAKER:
                 api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTX
 
+            if order_type == OrderType.STOP:
+                api_params["price"] = price_str
+                api_params["stopPrice"] = stop_price_str
+                api_params["type"] = "STOP"
+                api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTC
+
+            if order_type == OrderType.TAKE_PROFIT:
+                api_params["price"] = price_str
+                api_params["stopPrice"] = stop_price_str
+                api_params["type"] = "TAKE_PROFIT"
+                api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTC
+
             if order_type == OrderType.STOP_MARKET:
                 api_params["stopPrice"] = stop_price_str
                 api_params["type"] = "STOP_MARKET"
+                api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTC
+
+            if order_type == OrderType.TAKE_PROFIT_MARKET:
+                api_params["stopPrice"] = stop_price_str
+                api_params["type"] = "TAKE_PROFIT_MARKET"
+                api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTC
+
+            if order_type == OrderType.TRAILING_STOP_MARKET:
+                api_params["callbackRate"] = call_back_rate_str
+                api_params["activationPrice"] = activation_price_str
+                api_params["type"] = "TRAILING_STOP_MARKET"
                 api_params["timeInForce"] = CONSTANTS.TIME_IN_FORCE_GTC
 
             if self._position_mode == PositionMode.HEDGE:

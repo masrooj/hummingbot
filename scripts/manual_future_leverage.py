@@ -697,8 +697,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
             order_type=order_type,
             order_side=trade_type,
             amount=Decimal(leveraged_order_amount),
-            price=price,
-            stop_price=stop_price
+            price=price
         )
 
         return order

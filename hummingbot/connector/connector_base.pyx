@@ -240,7 +240,8 @@ cdef class ConnectorBase(NetworkIterator):
         """
         raise NotImplementedError
 
-    def buy(self, trading_pair: str, amount: Decimal, order_type: OrderType, price: Decimal, **kwargs) -> str:
+    def buy(self, trading_pair: str, amount: Decimal, order_type: OrderType, price: Decimal,
+                stop_price: Decimal, call_back_rate: Decimal, activation_price: Decimal, **kwargs) -> str:
         """
         Buys an amount of base asset (of the given trading pair).
         :param trading_pair: The market (e.g. BTC-USDT) to buy from
@@ -252,10 +253,12 @@ cdef class ConnectorBase(NetworkIterator):
         raise NotImplementedError
 
     cdef str c_buy(self, str trading_pair, object amount, object order_type=OrderType.MARKET,
-                   object price=s_decimal_NaN, dict kwargs={}):
-        return self.buy(trading_pair, amount, order_type, price, **kwargs)
+                    object price=s_decimal_NaN, object stop_price=s_decimal_NaN,
+                    object call_back_rate=s_decimal_NaN, object activation_price=s_decimal_NaN, dict kwargs={}):
+        return self.buy(trading_pair, amount, order_type, price, stop_price, call_back_rate, activation_price, **kwargs)
 
-    def sell(self, trading_pair: str, amount: Decimal, order_type: OrderType, price: Decimal, stop_price: Decimal, **kwargs) -> str:
+    def sell(self, trading_pair: str, amount: Decimal, order_type: OrderType, price: Decimal,
+                stop_price: Decimal, call_back_rate: Decimal, activation_price: Decimal, **kwargs) -> str:
         """
         Sells an amount of base asset (of the given trading pair).
         :param trading_pair: The market (e.g. BTC-USDT) to sell from
@@ -265,6 +268,11 @@ cdef class ConnectorBase(NetworkIterator):
         :returns An order id
         """
         raise NotImplementedError
+
+    cdef str c_sell(self, str trading_pair, object amount, object order_type=OrderType.MARKET,
+                    object price=s_decimal_NaN, object stop_price=s_decimal_NaN,
+                    object call_back_rate=s_decimal_NaN, object activation_price=s_decimal_NaN, dict kwargs={}):
+        return self.sell(trading_pair, amount, order_type, price, stop_price, call_back_rate, activation_price, **kwargs)
 
     def batch_order_create(
         self, orders_to_create: List[Union[LimitOrder, MarketOrder]]
@@ -323,10 +331,6 @@ cdef class ConnectorBase(NetworkIterator):
                     )
                 )
         return creation_results
-
-    cdef str c_sell(self, str trading_pair, object amount, object order_type=OrderType.MARKET,
-                    object price=s_decimal_NaN, object stop_price=s_decimal_NaN, dict kwargs={}):
-        return self.sell(trading_pair, amount, order_type, price, stop_price, **kwargs)
 
     cdef c_cancel(self, str trading_pair, str client_order_id):
         self.cancel(trading_pair, client_order_id)
