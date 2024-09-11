@@ -1,7 +1,7 @@
 exchange: binance_perpetual_testnet
 session_id: 66cf0ccb971fa886f9fee956 #66cc2f499e878b3a77198718
-trading_pair: 1000PEPE-USDT 
-base_order_amount: 0.4
+trading_pair: ETH-USDT 
+base_order_amount: 20
 leverage: 20 
 is_stop_loss_activated: True
 stop_loss_percentage: 0.15
@@ -12,7 +12,7 @@ take_profit_price: 0.00
 take_profit_percentage:  0.15 
 price_type: last 
 trade_type: SELL 
-stop_price: 0.081
+stop_price: 2400.00
 exit_price: 0.00 
 exit_type:  exit_limit
 commands_count: 0  
