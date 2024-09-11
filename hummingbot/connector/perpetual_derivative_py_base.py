@@ -221,8 +221,8 @@ class PerpetualDerivativePyBase(ExchangePyBase, ABC):
         trading_pair: str,
         amount: Decimal,
         order_type: OrderType,
-        stop_price: Optional[Decimal],
         price: Optional[Decimal] = None,
+        stop_price: Optional[Decimal] = None,
         position_action: PositionAction = PositionAction.NIL,
         **kwargs,
     ):

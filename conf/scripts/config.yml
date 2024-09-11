@@ -1,3 +1,18 @@
+markets:
+  binance_perpetual_testnet:
+  - 1000PEPE-USDT
+  - ETH-USDT
+candles_config:
+- connector: binance_perpetual
+  interval: 1m
+  max_records: 500
+  trading_pair: ETH-USDT
+- connector: binance_perpetual
+  interval: 1m
+  max_records: 500
+  trading_pair: 1000PEPE-USDT
+config_update_interval: 60
+script_file_name: manual_future_leverage.py
 exchange: binance_perpetual_testnet
 session_id: 66cf0ccb971fa886f9fee956 #66cc2f499e878b3a77198718
 trading_pair: ETH-USDT 
@@ -12,11 +27,11 @@ take_profit_price: 0.00
 take_profit_percentage:  0.15 
 price_type: last 
 trade_type: SELL 
-stop_price: 2400.00
+stop_price: 2300.00
 exit_price: 0.00 
 exit_type:  exit_limit
 commands_count: 0  
 limit_order_percentage: 0.001
 order_refresh_time: 10
 limit_order_market_attempt: 3
-
+position_mode: HEDGE

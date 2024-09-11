@@ -5,13 +5,14 @@ import tempfile
 from decimal import ROUND_DOWN, Decimal
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field
+from pydantic import Field, validator
 
 from hummingbot.client.config.config_data_types import BaseClientModel, ClientFieldData
 from hummingbot.connector.connector_base import ConnectorBase
+from hummingbot.core.clock import Clock
 from hummingbot.connector.derivative.position import Position
 from hummingbot.connector.utils import split_hb_trading_pair
-from hummingbot.core.data_type.common import OrderType, PositionAction, PriceType, TradeType
+from hummingbot.core.data_type.common import OrderType, PositionAction, PositionMode, PriceType, TradeType
 from hummingbot.core.data_type.limit_order import LimitOrder
 from hummingbot.core.data_type.order_candidate import OrderCandidate
 from hummingbot.core.event.events import (
@@ -23,23 +24,27 @@ from hummingbot.core.event.events import (
     SellOrderCompletedEvent,
     SellOrderCreatedEvent,
 )
+from hummingbot.data_feed.candles_feed.data_types import CandlesConfig
 from hummingbot.strategy.script_strategy_base import ScriptStrategyBase
+from hummingbot.strategy.strategy_v2_base import StrategyV2Base, StrategyV2ConfigBase
 
 
-class ManualFutureLeverageConfig(BaseClientModel):
+class ManualFutureLeverageConfig(StrategyV2ConfigBase):
     script_file_name: str = Field(default_factory=lambda: os.path.basename(__file__))
-    trading_pair: str = Field(
-        "ETH-USDT",
-        client_data=ClientFieldData(
-            prompt_on_new=True, prompt=lambda mi: "Enter the exchange where the bot will trade:"
-        ),
-    )
-    exchange: str = Field(
-        "binance_perpetual_testnet",
-        client_data=ClientFieldData(
-            prompt_on_new=True, prompt=lambda mi: "Enter the exchange where the bot will trade:"
-        ),
-    )
+    markets: Dict[str, List[str]] = {}
+    candles_config: List[CandlesConfig] = []
+    exchange: str = Field(default="binance_perpetual_testnet", client_data=ClientFieldData(
+        prompt_on_new=True, prompt=lambda mi: "Exchange where the bot will trade"))
+    trading_pair: str = Field(default="ETH-USDT", client_data=ClientFieldData(
+        prompt_on_new=True, prompt=lambda mi: "Trading pair where the bot will trade"))
+    candles_exchange: str = Field(default="binance_perpetual", client_data=ClientFieldData(
+        prompt_on_new=True, prompt=lambda mi: "Candles exchange used to calculate RSI"))
+    candles_pair: str = Field(default="ETH-USDT", client_data=ClientFieldData(
+        prompt_on_new=True, prompt=lambda mi: "Candles trading pair used to calculate RSI"))
+    candles_interval: str = Field(default="1m", client_data=ClientFieldData(
+        prompt_on_new=False, prompt=lambda mi: "Candle interval (e.g. 1m for 1 minute)"))
+    candles_length: int = Field(default=60, gt=0, client_data=ClientFieldData(
+        prompt_on_new=True, prompt=lambda mi: "Number of candles used to calculate RSI (e.g. 60)"))
     base_order_amount: Decimal = Field(
         0.025,
         client_data=ClientFieldData(
@@ -127,10 +132,18 @@ class ManualFutureLeverageConfig(BaseClientModel):
     limit_order_market_attempt: int = Field(
         1, client_data=ClientFieldData(prompt_on_new=True, prompt=lambda mi: "Enter the limit order market attempt: ")
     )
+    position_mode: PositionMode = Field(default="ONEWAY", client_data=ClientFieldData(
+        prompt_on_new=True, prompt=lambda mi: "Position mode (HEDGE/ONEWAY)"))
+
+    @validator('position_mode', pre=True, allow_reuse=True)
+    def validate_position_mode(cls, v: str) -> PositionMode:
+        if v.upper() in PositionMode.__members__:
+            return PositionMode[v.upper()]
+        raise ValueError(f"Invalid position mode: {v}. Valid options are: {', '.join(PositionMode.__members__)}")
 
 
-class ManualFutureLeverage(ScriptStrategyBase):
-
+class ManualFutureLeverage(StrategyV2Base):
+    account_config_set = False
     price_source = PriceType.MidPrice
     markets = {"binance_perpetual_testnet": {"BTC-USDT"}}
 
@@ -166,7 +179,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
     _is_exit_limit_order_started = False
     _is_exit_market_order_started = False
 
-    @classmethod
+    @ classmethod
     def init_markets(cls, config: ManualFutureLeverageConfig):
         cls.markets = {config.exchange: {config.trading_pair}}
         cls.price_source = (
@@ -176,6 +189,15 @@ class ManualFutureLeverage(ScriptStrategyBase):
     def __init__(self, connectors: Dict[str, ConnectorBase], config: ManualFutureLeverageConfig = None):
         super().__init__(connectors, config)
         self.config = config
+
+    def start(self, clock: Clock, timestamp: float) -> None:
+        """
+        Start the strategy.
+        :param clock: Clock to use.
+        :param timestamp: Current time.
+        """
+        self._last_timestamp = timestamp
+        self.apply_initial_setting()
 
     def loggingMessage(self, message):
         self.logger().info(message)
@@ -703,6 +725,15 @@ class ManualFutureLeverage(ScriptStrategyBase):
 
         return order
 
+    def apply_initial_setting(self):
+        if not self.account_config_set:
+            for connector_name, connector in self.connectors.items():
+                if self.is_perpetual(connector_name):
+                    connector.set_position_mode(self.config.position_mode)
+                    for trading_pair in self.market_data_provider.get_trading_pairs(connector_name):
+                        connector.set_leverage(trading_pair, self.config.leverage)
+            self.account_config_set = True
+
     def place_order(self, connector_name: str, order: OrderCandidate) -> str:
         try:
             if order.order_side == TradeType.SELL.name:  # TradeType.SELL
@@ -712,7 +743,7 @@ class ManualFutureLeverage(ScriptStrategyBase):
                     amount=order.amount,
                     order_type=OrderType.STOP_MARKET,
                     price=order.price,
-                    stop_price=order.price * order.stop_price,
+                    stop_price=order.stop_price,
                     position_action=PositionAction.OPEN,
                 )
             elif order.order_side == TradeType.BUY.name:

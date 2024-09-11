@@ -397,8 +397,8 @@ class ExchangePyBase(ExchangeBase, ABC):
                             trading_pair: str,
                             amount: Decimal,
                             order_type: OrderType,
-                            stop_price: Optional[Decimal],
                             price: Optional[Decimal] = None,
+                            stop_price: Optional[Decimal] = None,
                             **kwargs):
         """
         Creates an order in the exchange using the parameters to configure it
@@ -501,6 +501,7 @@ class ExchangePyBase(ExchangeBase, ABC):
         trade_type: TradeType,
         order_type: OrderType,
         price: Optional[Decimal],
+        stop_price: Optional[Decimal],
         exception: Exception,
         **kwargs,
     ):
