@@ -240,9 +240,9 @@ class InFlightOrder:
             leverage=int(data["leverage"]),
             position=PositionAction(data["position"]),
             creation_timestamp=data.get("creation_timestamp", -1),
-            stop_price=Decimal(data["stop_price"]),
-            call_back_rate=Decimal(data["call_back_rate"]),
-            activation_price=Decimal(data["activation_price"])
+            stop_price = Decimal(data["stop_price"]) if data["stop_price"] != 'None' else None,
+            call_back_rate=Decimal(data["call_back_rate"]) if data["call_back_rate"] != 'None' else None,
+            activation_price=Decimal(data["activation_price"]) if data["activation_price"] != 'None' else None
         )
         order.executed_amount_base = Decimal(data["executed_amount_base"])
         order.executed_amount_quote = Decimal(data["executed_amount_quote"])
